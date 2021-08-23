@@ -1,7 +1,7 @@
 from enum import Enum
 
-import chess_men as chess
-from chess_engine import positions, site, modes
+import Engine.chess_men as chess
+from Engine.chess_engine import *
 
 class Field(object):
     def __init__(self, field=dict(), moves=[], new_game=True, mode=modes.CLASSIC):
@@ -46,3 +46,9 @@ class Field(object):
 
     def move(self):
         pass
+
+    def valid_moves(self):    # the new pos have to be in move-set or in attack-set -> but there have to be a enemy
+        pass
+
+    def get_field(self) -> dict:
+        return self.field
