@@ -1,5 +1,7 @@
 from enum import Enum
 
+import io_helper as io
+
 # Chess Pieces:
 #   Pawn = Bauer (kein Zeichen oder hier: P)
 #   Rook = Turm (R)
@@ -12,9 +14,9 @@ site = Enum("site", "WHITE BLACK")
 modes = Enum("modes", "CLASSIC")
 lines = {'a':1, 'b':2, 'c':3, 'd':4, 'e':5, 'f':6, 'g':7, 'h':8}
 positions = list()
-for lines in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']:
-    for rows in range(1, 9):
-        positions += [f"{lines}{rows}"]
+for line in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']:
+    for row in range(1, 9):
+        positions += [f"{line}{row}"]
 
 from Engine.chess_field import Field
 
@@ -35,21 +37,45 @@ class Engine(object):
 
     def run_move(self, from_pos:str, to_pos:str) -> bool:    
         """Runs a turn on a Chess field. Returns if the execution worked right."""
-        pass
+        # move
+        if self.field.get_field()[from_pos] != None:
+            if self.field.get_field()[from_pos].site == self.turn:
+                result = self.field.move(from_pos, to_pos)
+            else:
+                io.print_with_only_delay("You have to choose one of your Chessmen!", 0, 0)
+                return None
+        else:
+            io.print_with_only_delay("You have to choose one of your Chessmen!", 0, 0)
+            return None
+        if result:
+            # change player for next turn
+            self.next_player()
 
     def run_moves(self, moves:list) -> bool:
         """Runs more than one turn on a Chess field. Returns if the execution worked right."""
-        # move
-        #...
-        # change player for next turn
-        self.next_player()
-
-    def is_chess_move(self, move:str) -> bool:
         # for every move in the list:
         # move
         #...
         # change player for next turn
         self.next_player()
+
+    def is_chess_move(self, move) -> bool:
+        if type(move) == tuple:
+            if len(move) == 2:
+                if move[0][0] in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] and move[0][1] in ['1', '2', '3', '4', '5', '6', '7', '8'] and \
+                   move[1][0] in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] and move[1][1] in ['1', '2', '3', '4', '5', '6', '7', '8']:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        elif type(move) == str:
+            if len(move.split(" ")) == 2:
+                pass
+            else:
+                return False
+        else:
+            return False
 
     def get_field(self):
         return self.field.get_field()

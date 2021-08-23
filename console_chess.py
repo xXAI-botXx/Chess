@@ -19,6 +19,7 @@ def turn(user_input:str):
     else:
         io.print_with_only_delay("Not a valid turn", 0, 0)
 
+# or the sites with color text showing
 def show():
     field = cur_engine.get_field()
     show_field = ""
@@ -30,7 +31,7 @@ def show():
                 show_field += f"{pos[1]} |"
 
             if field[pos] == None:
-                show_field += " + "
+                show_field += "   "
             elif type(field[pos]) == pieces.Pawn:
                 if field[pos].site == engine.site.WHITE:
                     show_field += " P "
@@ -74,8 +75,10 @@ def show():
 def start(user_input:str):
     if len(user_input.split(" ")) == 1:
         global cur_engine
-        cur_engine = engine.Engine(new_game=True, mode=engine.modes.CLASSIC)
-        #show()
+        if cur_engine == None:
+            cur_engine = engine.Engine(new_game=True, mode=engine.modes.CLASSIC)
+        else:
+            io.print_with_only_delay("\nYou are still playing a chess game!", 0, 0.5)
 
 def save(user_input:str):
     pass
@@ -115,8 +118,9 @@ def run():
             user_input = io.get_input("User input:")
         try:
             commands[user_input.split(" ")[0]](user_input)
-        except KeyError:
-            user_input = io.print_with_only_delay("Input not found! Try again.", 0, 0)
+        except KeyError as e:
+            io.print_with_only_delay(e)
+            user_input = io.print_with_only_delay(f"Input not found! Type {io.PURPLE}help{io.END} for all keywords.", 0, 0)
             io.confirm(f"Press {io.BACKGROUND_RED}Enter{io.END} to confirm", fast=True)
 
 
