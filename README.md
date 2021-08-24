@@ -14,3 +14,18 @@ Eventuell könnten auch verschiedene Modi implementiert werden mit eventuell neu
 ___
 ### Tools:
 - Python als Programmiersprache <br>
+
+___
+### Implementationen:
+- Text-Basierte Konsolen Anwendung ( )
+- GUI-Basierte Anwendung mit PyGame (oder Tkinter) ( )
+- Netzwerkspiel ( )
+- DiscordBot ( )
+
+___
+### Features:
+- Schach mit all seinen Regeln ( )
+- Speichere und lade ein Match ( )
+- Lernmodus? ( )
+- Verschiedene Modi (?) ( )
+- Zug zurück (will man das?) ( )
