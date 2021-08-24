@@ -85,10 +85,13 @@ class Field(object):
             moves = self.field[pos].get_move_positions()
             for x, y, endless in moves:
                 if endless:
+                    new_x = self.numerical_field_to_alphabetic(lines[pos[0]])
+                    new_y = int(pos[1])
                     while True:
-                        new_x = self.numerical_field_to_alphabetic(lines[pos[0]]+x)
+                        new_x = self.numerical_field_to_alphabetic(lines[new_x]+x)
+                        new_y += y
                         if new_x != None:
-                            new_pos = f"{new_x}{int(pos[1])+y}"
+                            new_pos = f"{new_x}{new_y}"
                             # position in field
                             if new_pos in positions:
                                 # field is free
@@ -100,6 +103,8 @@ class Field(object):
                                     break
                             else:
                                 break
+                        else:
+                            break
                 else:
                     new_x = self.numerical_field_to_alphabetic(lines[pos[0]]+x)
                     if new_x != None:
@@ -115,10 +120,13 @@ class Field(object):
             attacks = self.field[pos].get_attack_positions()
             for x, y, endless in attacks:
                 if endless:
+                    new_x = self.numerical_field_to_alphabetic(lines[pos[0]])
+                    new_y = int(pos[1])
                     while True:
-                        new_x = self.numerical_field_to_alphabetic(lines[pos[0]]+x)
+                        new_x = self.numerical_field_to_alphabetic(lines[new_x]+x)
+                        new_y += y
                         if new_x != None:
-                            new_pos = f"{new_x}{int(pos[1])+y}"
+                            new_pos = f"{new_x}{new_y}"
                             # position in field
                             if new_pos in positions:
                                 # field is enemy
@@ -130,6 +138,8 @@ class Field(object):
                                     break
                             else:
                                 break
+                        else:
+                            break
                 else:
                     new_x = self.numerical_field_to_alphabetic(lines[pos[0]]+x)
                     if new_x != None:
