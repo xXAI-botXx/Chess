@@ -59,6 +59,11 @@ class Engine(object):
         # change player for next turn
         self.next_player()
 
+    def get_moves(self, pos:str):
+        moves = self.field.valid_moves(pos)
+        io.print_with_only_delay(f"\nThere are following moves:\n{moves}", 0, 0)
+        io.confirm(f"\n(Press {io.RED}Enter{io.END} to continue)", cleanup=True, fast=True)
+
     def is_chess_move(self, move) -> bool:
         if type(move) == tuple:
             if len(move) == 2:

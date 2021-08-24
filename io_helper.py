@@ -67,6 +67,9 @@ CLEAR_LINE = lambda n: f"\u001b[{n}K" #clears the current line
 # Reset
 END = '\033[0m'
 
+# Variable
+TYPING = False
+
 sounds = ("DATA/typing_1.wav", "DATA/typing_3.wav", "DATA/typing_4.wav", "DATA/typing_5.wav", "DATA/typing_7.wav", "DATA/typing_8.wav", "DATA/typing_9.wav"
             , "DATA/typing_15.wav", "DATA/typing_16.wav")
 
@@ -77,10 +80,13 @@ print_time_min = 0
 
 def print_with_delay(txt:str, *features) -> None:
     """Print something with delay on console"""
+    global TYPING
+
     if len(features) > 0:
         txt = add_special_effect(txt, features)
     os.system("color")
 
+    TYPING = True
     for c in txt:
         sys.stdout.write(c)
         sys.stdout.flush()    # forces buffer to flush the txt (normally it collect all and take it out togheter)
@@ -96,11 +102,15 @@ def print_with_delay(txt:str, *features) -> None:
         winsound.PlaySound(sounds[random.randint(0, 8)], winsound.SND_ASYNC)
     sys.stdout.write("\n"+END)
     sys.stdout.flush()
+    TYPING = False
 
 def print_with_only_delay(txt:str, min=print_time_min, max=print_time_max) -> None:
     """Print something with delay on console"""
+    global TYPING
+    
     os.system("color")
 
+    TYPING = True
     for c in txt:
         sys.stdout.write(c)
         sys.stdout.flush()    # forces buffer to flush the txt (normally it collect all and take it out togheter)
@@ -112,9 +122,11 @@ def print_with_only_delay(txt:str, min=print_time_min, max=print_time_max) -> No
         #time.sleep(print_time)
         rnd = random.randint(min, max)
         time.sleep(rnd/10)
+    TYPING = False
     #if max <= 0:
     #    winsound.PlaySound(sounds[random.randint(0, 8)], winsound.SND_ASYNC)
 
+# darf während typing -> da nur für input verwendet wird
 def print_char_with_only_delay(c:str, min=print_time_min, max=print_time_max) -> None:
     """Print something with delay on console"""
     os.system("color")
@@ -153,27 +165,39 @@ def add_special_effect(txt:str, *features) -> str:    # You can add Special Effe
 
 # Input
 def get_input(message="User: ") -> str:
-    user_input = ""
-    print_with_only_delay(message)
-    while True:
-        #user_input = sys.stdin.read(1)
-        #user_input = str(msvcrt.getch(), 'utf-8')
-        try:
-            char = msvcrt.getch().decode()
-            user_input += char
-        except UnicodeDecodeError:
-            return None
-        #except KeyError:
-        #    return None
-        
-        if char == "\n" or char == "\r":
-            print_char_with_only_delay("\n", 0, 0)
-            break
-        elif char == '\u0008' or char == '\b':
-            print_with_only_delay(f"{LEFT(1)} ", 0 ,0)
-            user_input = user_input[:-2]
-        print_char_with_only_delay(HEADER+char+END)
-    return user_input.lower().replace("\r", "")
+    global TYPING
+    
+    if not TYPING:
+        user_input = ""
+        print_with_only_delay(message)
+        used = 0
+        while True:
+            #user_input = sys.stdin.read(1)
+            #user_input = str(msvcrt.getch(), 'utf-8')
+            try:
+                char = msvcrt.getch().decode()
+                user_input += char
+                used += 1
+            except UnicodeDecodeError:
+                return None
+            #except KeyError:
+            #    return None
+            
+            if char == "\n" or char == "\r":
+                print_char_with_only_delay("\n", 0, 0)
+                break
+            elif char == '\u0008' or char == '\b':
+                if used > 1:
+                    print_with_only_delay(f"{LEFT(1)} ", 0 ,0)
+                    user_input = user_input[:-2]
+                    used -= 2
+                    print_char_with_only_delay(HEADER+char+END)
+                else:
+                    user_input = user_input[:-1]
+                    used -= 1
+            else:
+                print_char_with_only_delay(HEADER+char+END)
+        return user_input.lower().replace("\r", "")
 
 def confirm(message="", cleanup=False, fast=False):
     if fast:

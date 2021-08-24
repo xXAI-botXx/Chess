@@ -15,7 +15,13 @@ def turn(user_input:str):
             from_pos, to_pos = user_input.split(" ")[1], user_input.split(" ")[2]
             cur_engine.run_move(from_pos, to_pos)
         else:
-            io.print_with_only_delay("You have to start a new Game!", 0, 0)
+            io.print_with_only_delay("You have to start a Game!", 0, 0)
+    elif len(user_input.split(" ")) == 2:
+        if cur_engine != None:
+            from_pos = user_input.split(" ")[1]
+            cur_engine.get_moves(from_pos)
+        else:
+            io.print_with_only_delay("You have to start a Game!", 0, 0)
     else:
         io.print_with_only_delay("Not a valid turn", 0, 0)
 
@@ -95,6 +101,7 @@ def help(user_input:str):
     txt += "\n    - load"
     txt += "\n    - help"
     txt += "\n    - exit"
+    txt +=f"\n\nTip: type as example {io.PURPLE}move a3{io.END} to get the possible moves of this chess-piece"
     io.print_with_only_delay(txt)
     io.confirm(f"(Press {io.RED}Enter{io.END} to confirm)", cleanup=True, fast=True)
 
@@ -119,9 +126,9 @@ def run():
         try:
             commands[user_input.split(" ")[0]](user_input)
         except KeyError as e:
-            io.print_with_only_delay(e)
-            user_input = io.print_with_only_delay(f"Input not found! Type {io.PURPLE}help{io.END} for all keywords.", 0, 0)
-            io.confirm(f"Press {io.BACKGROUND_RED}Enter{io.END} to confirm", fast=True)
+            #io.print_with_only_delay(e)
+            io.print_with_only_delay(f"Input not found! Type {io.PURPLE}help{io.END} for all keywords.", 0, 0)
+            io.confirm(f"(Press {io.RED}Enter{io.END} to continue)", fast=True)
 
 
 if __name__ == '__main__':

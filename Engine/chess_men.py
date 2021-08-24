@@ -57,6 +57,20 @@ class Pawn(Chessman):
         elif self.site == site.BLACK:
             return [(1, -1, False), (-1, -1, False)]
 
+    def post_attack(self, pos):
+        if self.double_jump_possible:
+            self.double_jump_possible = False
+            if self.site == site.WHITE:
+                if int(pos[1]) == 4:
+                    self.double_jump_activated = True
+                else:
+                    self.double_jump_activated = False
+            else:
+                if int(pos[1]) == 5:
+                    self.double_jump_activated = True
+                else:
+                    self.double_jump_activated = False
+
 
 class Rook(Chessman):
     def __init__(self, site:site, kills=[]):

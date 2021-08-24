@@ -2,7 +2,7 @@ from enum import Enum
 
 import io_helper as io
 import Engine.chess_men as chess
-from Engine.chess_engine import lines, modes, positions, site
+from Engine.chess_engine import lines, modes, positions, site, chessmen
 
 class Field(object):
     def __init__(self, field=dict(), moves=[], new_game=True, mode=modes.CLASSIC):
@@ -49,8 +49,6 @@ class Field(object):
                     self.field[pos] = None
 
     def move(self, from_pos, to_pos):
-        print(self.valid_moves(from_pos))
-        io.confirm()
         if to_pos in self.valid_moves(from_pos):
             if self.field[to_pos] != None:
                 self.field[from_pos].add_kill(self.field[to_pos].get_name())
@@ -72,6 +70,9 @@ class Field(object):
 
             self.field[to_pos] = self.field[from_pos]
             self.field[from_pos] = None
+            # post attack
+            if self.field[to_pos].chessman == chessmen.PAWN:
+                self.field[to_pos].post_attack(to_pos)
             return True
         else:
             return False
