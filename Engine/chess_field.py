@@ -1,4 +1,4 @@
-from enum import Enum
+from copy import deepcopy
 
 import io_helper as io
 import Engine.chess_men as chess
@@ -48,41 +48,73 @@ class Field(object):
                 else:
                     self.field[pos] = None
 
-    def move(self, from_pos, to_pos):
-        if to_pos in self.valid_moves(from_pos):
-            if self.field[to_pos] != None:
-                self.field[from_pos].add_kill(self.field[to_pos].get_name())
-                if self.field[to_pos].site == site.WHITE:
-                    self.graveyard_white += [self.field[to_pos]]
-                    io.print_with_only_delay(f"\nWhite {self.field[from_pos].get_name()} defeats black {self.field[to_pos].get_name()}", 0, 0)
-                else:
-                    self.graveyard_black += [self.field[to_pos]]
-                    io.print_with_only_delay(f"\nBlack {self.field[from_pos].get_name()} defeats white {self.field[to_pos].get_name()}", 0, 0)
-                    
-                if self.field[from_pos].get_kills() == 3:
-                    io.print_with_only_delay(f"\n{self.field[from_pos].get_name()} is heroic.", 0, 0)
-                elif self.field[from_pos].get_kills() == 4:
-                    io.print_with_only_delay(f"\n{self.field[from_pos].get_name()} will kill'em all.", 0, 0)
-                elif self.field[from_pos].get_kills() == 5:
-                    io.print_with_only_delay(f"\n{self.field[from_pos].get_name()} is unstoppable.", 0, 0)
-                elif self.field[from_pos].get_kills() == 6:
-                    io.print_with_only_delay(f"\n{self.field[from_pos].get_name()} is a legend!", 0, 0)
+    def move(self, field, from_pos, to_pos) -> tuple:
+        """executes a move (if possible) directly on the field.\n 
+           Returns if the turn has been executed"""
+        messages = ""
+        if to_pos in self.valid_moves(field, from_pos):
+            # check if danger the king
+            new_field = self.move_without_changes(field, from_pos, to_pos)
+            if not self.is_check(new_field, field[from_pos].site):
+                if field[to_pos] != None:
+                    field[from_pos].add_kill(field[to_pos].get_name())
+                    if field[to_pos].site == site.WHITE:
+                        self.graveyard_white += [field[to_pos]]
+                        messages += f"\nBlack {field[from_pos].get_name()} defeats white {field[to_pos].get_name()}"
+                    else:
+                        self.graveyard_black += [field[to_pos]]
+                        messages += f"\nWhite {field[from_pos].get_name()} defeats black {field[to_pos].get_name()}"
+                        
+                    if field[from_pos].get_kills() == 3:
+                        messages += f"\n{field[from_pos].get_name()} is heroic."
+                    elif field[from_pos].get_kills() == 4:
+                        messages += f"\n{field[from_pos].get_name()} will kill'em all."
+                    elif field[from_pos].get_kills() == 5:
+                        messages += f"\n{field[from_pos].get_name()} is unstoppable."
+                    elif field[from_pos].get_kills() == 6:
+                        messages += f"\n{field[from_pos].get_name()} is a legend!"
 
-            self.field[to_pos] = self.field[from_pos]
-            self.field[from_pos] = None
-            # post attack
-            if self.field[to_pos].chessman == chessmen.PAWN:
-                self.field[to_pos].post_attack(to_pos)
-            return True
+                field[to_pos] = field[from_pos]
+                field[from_pos] = None
+                # post attack
+                if field[to_pos].chessman == chessmen.PAWN:
+                    field[to_pos].post_attack(to_pos)
+                self.moves += [(from_pos, to_pos)]
+                return (True, messages)
+            else:
+                messages += "\nYou have to make the safety of your king sure!"
+                return (False, messages)
         else:
-            return False
+            return (False, messages)
 
-    def valid_moves(self, pos) -> list:    # the new pos have to be in move-set or in attack-set -> but there have to be a enemy
-        if self.field[pos] == None:
+    def move_without_changes(self, field, from_pos, to_pos) -> dict:
+        """executes a turn on a new map and returns that map"""
+        # all objects (the chessmen) have to be copies!!!
+        copy_field = deepcopy(field)
+        if to_pos in self.valid_moves(field, from_pos):
+            if copy_field[to_pos] != None:
+                copy_field[from_pos].add_kill(copy_field[to_pos].get_name())
+                if copy_field[to_pos].site == site.WHITE:
+                    self.graveyard_white += [copy_field[to_pos]]
+                else:
+                    self.graveyard_black += [copy_field[to_pos]]
+
+            copy_field[to_pos] = copy_field[from_pos]
+            copy_field[from_pos] = None
+            # post attack
+            if copy_field[to_pos].chessman == chessmen.PAWN:
+                copy_field[to_pos].post_attack(to_pos)
+            self.moves += [(from_pos, to_pos)]
+            return copy_field
+        else:
+            return None
+
+    def valid_moves(self, field, pos) -> list:    # the new pos have to be in move-set or in attack-set -> but there have to be a enemy
+        if field[pos] == None:
             return []
         else:
             valid_moves = []
-            moves = self.field[pos].get_move_positions()
+            moves = field[pos].get_move_positions()
             for x, y, endless in moves:
                 if endless:
                     new_x = self.numerical_field_to_alphabetic(lines[pos[0]])
@@ -95,7 +127,7 @@ class Field(object):
                             # position in field
                             if new_pos in positions:
                                 # field is free
-                                if self.field[new_pos] == None:
+                                if field[new_pos] == None:
                                     # if not added in possible moves
                                     if new_pos not in valid_moves:
                                         valid_moves += [new_pos]
@@ -112,12 +144,12 @@ class Field(object):
                         # position in field
                         if new_pos in positions:
                             # field is free
-                            if self.field[new_pos] == None:
+                            if field[new_pos] == None:
                                 # if not added in possible moves
                                 if new_pos not in valid_moves:
                                     valid_moves += [new_pos]
 
-            attacks = self.field[pos].get_attack_positions()
+            attacks = field[pos].get_attack_positions()
             for x, y, endless in attacks:
                 if endless:
                     new_x = self.numerical_field_to_alphabetic(lines[pos[0]])
@@ -130,12 +162,16 @@ class Field(object):
                             # position in field
                             if new_pos in positions:
                                 # field is enemy
-                                if self.field[new_pos] != None and self.field[new_pos].site != self.field[pos].site:
-                                    # if not added in possible moves
-                                    if new_pos not in valid_moves:
-                                        valid_moves += [new_pos]
+                                if field[new_pos] != None:
+                                    if field[new_pos].site != field[pos].site:
+                                        # if not added in possible moves
+                                        if new_pos not in valid_moves:
+                                            valid_moves += [new_pos]
+                                            break
+                                    else:
+                                        break
                                 else:
-                                    break
+                                    pass
                             else:
                                 break
                         else:
@@ -147,7 +183,7 @@ class Field(object):
                         # position in field
                         if new_pos in positions:
                             # field is enemy
-                            if self.field[new_pos] != None and self.field[new_pos].site != self.field[pos].site:
+                            if field[new_pos] != None and field[new_pos].site != field[pos].site:
                                 # if not added in possible moves
                                 if new_pos not in valid_moves:
                                     valid_moves += [new_pos]
@@ -162,3 +198,46 @@ class Field(object):
 
     def get_field(self) -> dict:
         return self.field
+
+    def king_pos(self, field, site):
+        for pos in positions:
+            if field[pos] != None:
+                if field[pos].chessman == chessmen.KING and field[pos].site == site:
+                    return pos
+
+    def is_check(self, field, site) -> bool:
+        """Checks if the givin site is in check"""
+        king_pos = self.king_pos(field, site)
+        if king_pos != None:
+            for pos in positions:
+                if field[pos] != None and field[pos].site != site:
+                    if king_pos in self.valid_moves(field, pos):
+                        return True
+            return False
+        else:
+            pass
+            # no king
+
+    # is working? -> or false used
+    def is_check_mate(self, field:dict, site) -> bool:
+        """Checks if the givin site is in checkmate"""
+        # is there no legal move without dangerous the king?
+        king_pos = self.king_pos(field, site)
+        if king_pos != None:
+            # search a turn which endanger the king
+            for pos in positions:
+                    if field[pos] != None and field[pos].site == site:
+                        for to_pos in self.valid_moves(field, pos):
+                            copy_field = self.move_without_changes(field, pos, to_pos)
+                            if not self.is_check(copy_field, site):
+                                return False
+            return True
+        else:
+            pass
+            # no king
+
+    def get_opposite_site(self, op_site):
+        if op_site == site.WHITE:
+            return site.BLACK
+        else:
+            return site.WHITE

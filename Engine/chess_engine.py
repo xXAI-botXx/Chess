@@ -25,6 +25,7 @@ class Engine(object):
         if new_game:
             self.field = Field(new_game=True, mode=mode)
             self.turn = turn
+            self.gameover = False
         else:
             self.load_game()
 
@@ -35,21 +36,43 @@ class Engine(object):
         pass
         # 1. get path to save txt -> while its a right path or cancel
 
-    def run_move(self, from_pos:str, to_pos:str) -> bool:    
-        """Runs a turn on a Chess field. Returns if the execution worked right."""
+    def run_move(self, from_pos:str, to_pos:str) -> tuple:    
+        """Runs a turn on a Chess field. Returns if the execution worked right and output from the game."""
+        messages = ""
+        result = False
         # move
-        if self.field.get_field()[from_pos] != None:
-            if self.field.get_field()[from_pos].site == self.turn:
-                result = self.field.move(from_pos, to_pos)
+        if not self.gameover:
+            if self.field.get_field()[from_pos] != None:
+                if self.field.get_field()[from_pos].site == self.turn:
+                    turn_result = self.field.move(self.field.field, from_pos, to_pos)
+                    result = turn_result[0]
+                    messages += turn_result[1]
+                    # check safety of the enemy
+                    if self.field.is_check_mate(self.field.field, self.field.get_opposite_site(self.turn)):
+                        self.gameover = True
+                        self.winner = self.turn
+                        if self.winner == site.WHITE:
+                            messages += "\n\nBLACK is in checkmate!"
+                            messages += "\nWHITE won this game!"
+                        else:
+                            messages += "\n\WHITE is in checkmate!"
+                            messages += "\nBLACK won this game!"
+                    elif self.field.is_check(self.field.field, self.field.get_opposite_site(self.turn)):
+                        if self.field.get_opposite_site(self.turn) == site.WHITE:
+                            messages += "\nWHITE is in check!"
+                        else:
+                            messages += "BLACK is in check!"
+                else:
+                    messages += "\nYou have to choose one of your Chessmen!"
             else:
-                io.print_with_only_delay("You have to choose one of your Chessmen!", 0, 0)
-                return None
+                messages += "You have to choose one of your Chessmen!"
+            if result:
+                # change player for next turn
+                self.next_player()
         else:
-            io.print_with_only_delay("You have to choose one of your Chessmen!", 0, 0)
-            return None
-        if result:
-            # change player for next turn
-            self.next_player()
+            messages += "The Game is over!"
+
+        return (result, messages)
 
     def run_moves(self, moves:list) -> bool:
         """Runs more than one turn on a Chess field. Returns if the execution worked right."""

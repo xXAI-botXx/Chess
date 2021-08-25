@@ -13,7 +13,11 @@ def turn(user_input:str):
     if len(user_input.split(" ")) == 3:
         if cur_engine != None:
             from_pos, to_pos = user_input.split(" ")[1], user_input.split(" ")[2]
-            cur_engine.run_move(from_pos, to_pos)
+            result = cur_engine.run_move(from_pos, to_pos)
+            if len(result[1]) > 0:
+                show()
+                io.print_with_only_delay(result[1], 0, 0)
+                io.confirm(f"\n(Press {io.RED}Enter{io.END} to continue.)", True, True)
         else:
             io.print_with_only_delay("You have to start a Game!", 0, 0)
     elif len(user_input.split(" ")) == 2:
@@ -27,6 +31,7 @@ def turn(user_input:str):
 
 # or the sites with color text showing
 def show():
+    io.print_with_only_delay(f"{io.CLEAR_SCREEN(2)}{io.SET_POSITION(0, 0)}", 0, 0)
     field = cur_engine.get_field()
     show_field = ""
     for row in range(8, 0, -1):
