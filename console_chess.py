@@ -23,7 +23,10 @@ def turn(user_input:str):
     elif len(user_input.split(" ")) == 2:
         if cur_engine != None:
             from_pos = user_input.split(" ")[1]
-            cur_engine.get_moves(from_pos)
+            result = cur_engine.get_moves(from_pos)
+            if type(result) == str:
+                io.print_with_only_delay("\n"+result, 0, 0)
+                io.confirm(f"\n(Press {io.RED}Enter{io.END} to continue.)", True, True)
         else:
             io.print_with_only_delay("You have to start a Game!", 0, 0)
     else:

@@ -1,4 +1,5 @@
 from enum import Enum
+import random
 
 import io_helper as io
 
@@ -74,6 +75,29 @@ class Engine(object):
 
         return (result, messages)
 
+    def run_random_move(self, my_site:str) -> tuple:
+        # get all positions
+        my_chessmen = []
+        for pos in positions:
+            if self.field.field[pos].site == site.WHITE and my_site == "WHITE":
+                my_chessmen += [self.field.field[pos]]
+            elif self.field.field[pos].site == site.BLACK and my_site == "BLACK":
+                my_chessmen += [self.field.field[pos]]
+        # all moves
+        all_moves = []
+        for my_chessman in my_chessmen:
+            for pos in self.field.valid_moves(my_chessman):
+                all_moves += [(my_chessman, pos)]
+        # choose a random move
+        if my_site == "WHITE":
+            my_site = site.WHITE
+        else:
+            my_site = site.BLACK
+        move = random.choice(all_moves)
+        while self.field.is_check(self.field.move_without_changes(self.field.field, move[0], move[1]), my_site):
+            move = random.choice(all_moves)
+        return move
+
     def run_moves(self, moves:list) -> bool:
         """Runs more than one turn on a Chess field. Returns if the execution worked right."""
         # for every move in the list:
@@ -84,8 +108,7 @@ class Engine(object):
 
     def get_moves(self, pos:str):
         moves = self.field.valid_moves(pos)
-        io.print_with_only_delay(f"\nThere are following moves:\n{moves}", 0, 0)
-        io.confirm(f"\n(Press {io.RED}Enter{io.END} to continue)", cleanup=True, fast=True)
+        return f"\nThere are following moves:\n{moves}"
 
     def is_chess_move(self, move) -> bool:
         if type(move) == tuple:
