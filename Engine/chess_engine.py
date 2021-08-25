@@ -1,8 +1,6 @@
 from enum import Enum
 import random
 
-import io_helper as io
-
 # Chess Pieces:
 #   Pawn = Bauer (kein Zeichen oder hier: P)
 #   Rook = Turm (R)

@@ -1,6 +1,5 @@
 from copy import deepcopy
 
-import io_helper as io
 import Engine.chess_men as chess
 from Engine.chess_engine import lines, modes, positions, site, chessmen
 
