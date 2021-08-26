@@ -28,9 +28,9 @@ class Field(object):
                     elif pos[0] == 'c' or pos[0] == 'f':
                         self.field[pos] = chess.Bishop(site.WHITE)
                     elif pos[0] == 'd':
-                        self.field[pos] = chess.King(site.WHITE)
-                    elif pos[0] == 'e':
                         self.field[pos] = chess.Queen(site.WHITE)
+                    elif pos[0] == 'e':
+                        self.field[pos] = chess.King(site.WHITE)
                 elif pos[1] == '7':
                     self.field[pos] = chess.Pawn(site.BLACK, False, True)
                 elif pos[1] == '8':
@@ -41,9 +41,9 @@ class Field(object):
                     elif pos[0] == 'c' or pos[0] == 'f':
                         self.field[pos] = chess.Bishop(site.BLACK)
                     elif pos[0] == 'd':
-                        self.field[pos] = chess.King(site.BLACK)
-                    elif pos[0] == 'e':
                         self.field[pos] = chess.Queen(site.BLACK)
+                    elif pos[0] == 'e':
+                        self.field[pos] = chess.King(site.BLACK)
                 else:
                     self.field[pos] = None
 

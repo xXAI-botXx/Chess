@@ -99,10 +99,10 @@ class Knight(Chessman):
         super().__init__(site, chessmen.KNIGHT, "knight", kills)
 
     def get_move_positions(self) -> list:
-        return [(1, 2, False), (-1, 2, False), (1, -2, False), (-1, -2, False)]
+        return [(1, 2, False), (-1, 2, False), (1, -2, False), (-1, -2, False), (2, 1, False), (-2, 1, False), (2, -1, False), (-2, -1, False)]
 
     def get_attack_positions(self) -> list:
-        return [(1, 2, False), (-1, 2, False), (1, -2, False), (-1, -2, False)]
+        return [(1, 2, False), (-1, 2, False), (1, -2, False), (-1, -2, False), (2, 1, False), (-2, 1, False), (2, -1, False), (-2, -1, False)]
 
         
 class Queen(Chessman):
