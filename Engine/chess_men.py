@@ -2,6 +2,7 @@ import abc
 from enum import Enum
 
 from Engine.chess_engine import site, chessmen
+import Engine.chess_engine as engine
 
 
 class Chessman(abc.ABC):
@@ -32,12 +33,21 @@ class Chessman(abc.ABC):
     def add_kill(self, enemie:str) -> str:
         self.kills += [enemie]
 
+    def info(self) -> str:
+        txt = f"\n--> {self.name.title()}"
+        txt += f"\n----> {self.site.name.title()}"
+        txt += f"\n----> Kills: {len(self.kills)}"
+        for kill in self.kills:
+            txt += f"\n--------> {kill}"
+        return txt
+
 
 class Pawn(Chessman):
     def __init__(self, site:site, double_move_activated=False, double_jump_possible=True, kills=[]):
         super().__init__(site, chessmen.PAWN, "pawn", kills)
         self.double_jump_activated = double_move_activated    # by loading you have to check in moves
         self.double_jump_possible = double_jump_possible
+        self.promotion = False
 
     def get_move_positions(self) -> list:
         if self.site == site.WHITE:
@@ -58,6 +68,7 @@ class Pawn(Chessman):
             return [(1, -1, False), (-1, -1, False)]
 
     def post_attack(self, pos):
+        # check dopple jump
         if self.double_jump_possible:
             self.double_jump_possible = False
             if self.site == site.WHITE:
@@ -70,6 +81,13 @@ class Pawn(Chessman):
                     self.double_jump_activated = True
                 else:
                     self.double_jump_activated = False
+        # check promotion
+        if self.site == site.WHITE and int(pos[1]) == 8:
+            self.promotion = True
+            engine.event = "PROMOTION"
+        elif self.site == site.BLACK and int(pos[1]) == 1:
+            self.promotion = True
+            engine.event = "PROMOTION"
 
 
 class Rook(Chessman):

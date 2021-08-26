@@ -77,6 +77,7 @@ class Field(object):
                 field[from_pos] = None
                 # post attack
                 if field[to_pos].chessman == chessmen.PAWN:
+                    
                     field[to_pos].post_attack(to_pos)
                 self.moves += [(from_pos, to_pos)]
                 return (True, messages)
@@ -240,3 +241,35 @@ class Field(object):
             return site.BLACK
         else:
             return site.WHITE
+
+    def upgrade_pawn(self, new_chessman, site):
+        global event
+        # find pawn
+        pawn_pos = None
+        kills = []
+        for pos in positions:
+            if self.field[pos] != None and self.field[pos].chessman == chessmen.PAWN and self.field[pos].promotion == True:
+                pawn_pos = pos
+                kills = self.field[pos].kills
+        if pawn_pos == None:
+            return (0, "Pawn not found.")
+        else:
+            # replace pawn with ne chessman
+            self.field[pawn_pos] = self.convert_chessmen_to_chessman(new_chessman, site, kills)
+            self.moves += [(pawn_pos, new_chessman)]
+            return (1, f"Pawn replaced with {new_chessman.name.title()}")
+
+    def convert_chessmen_to_chessman(self, to_convert, site, kills) -> chess.Chessman:
+        """Converts a Chessmen-Enum-State into a real Chessman"""
+        if to_convert == chessmen.PAWN:
+            return chess.Pawn(site, kills=kills)
+        elif to_convert == chessmen.ROOK:
+            return chess.Rook(site, kills=kills)
+        elif to_convert == chessmen.KNIGHT:
+            return chess.Knight(site, kills=kills)
+        elif to_convert == chessmen.BISHOP:
+            return chess.Bishop(site, kills=kills)
+        elif to_convert == chessmen.QUEEN:
+            return chess.Queen(site, kills=kills)
+        elif to_convert == chessmen.KING:
+            return chess.King(site, kills=kills)

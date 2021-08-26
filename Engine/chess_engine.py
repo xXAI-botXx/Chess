@@ -16,6 +16,7 @@ positions = list()
 for line in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']:
     for row in range(1, 9):
         positions += [f"{line}{row}"]
+event = None
 
 from Engine.chess_field import Field
 
@@ -37,10 +38,11 @@ class Engine(object):
 
     def run_move(self, from_pos:str, to_pos:str) -> tuple:    
         """Runs a turn on a Chess field. Returns if the execution worked right and output from the game."""
+        global event
         messages = ""
         result = False
         # move
-        if not self.gameover:
+        if not self.gameover and event == None:
             if self.field.get_field()[from_pos] != None:
                 if self.field.get_field()[from_pos].site == self.turn:
                     turn_result = self.field.move(self.field.field, from_pos, to_pos)
@@ -65,9 +67,13 @@ class Engine(object):
                     messages += "\nYou have to choose one of your Chessmen!"
             else:
                 messages += "You have to choose one of your Chessmen!"
-            if result:
+            if result and event == None:
                 # change player for next turn
                 self.next_player()
+            if event == "PROMOTION":
+                return (1, f"{messages}\n\n{self.turn.name.title()} write a chessman in which you want to convert your Pawn.")
+        elif event == "PROMOTION":
+            return (False, f"{self.turn.name.title()} has to convert  his Pawn into another chessman. Only write the chessman you want.")
         else:
             messages += "The Game is over!"
 
@@ -104,9 +110,26 @@ class Engine(object):
         # change player for next turn
         self.next_player()
 
+    def pawn_promotion(self, new_chessman:str) -> tuple:
+        global event
+        try:
+            if chessmen[new_chessman] in [chessmen.KNIGHT, chessmen.QUEEN, chessmen.ROOK, chessmen.BISHOP]:
+                result, message = self.field.upgrade_pawn(chessmen[new_chessman], self.turn)
+                if result == 1:
+                    event = None
+                    self.next_player()
+                return (result, message)
+        except KeyError:
+            return (0, "Please choose a valid chessmen for the promotion of your pawn!")
+
     def get_moves(self, pos:str):
-        moves = self.field.valid_moves(pos)
-        return f"\nThere are following moves:\n{moves}"
+        if self.field.field[pos] != None:
+            info = self.field.field[pos].info()
+            moves = self.field.valid_moves(self.field.field, pos)
+            return f"\n{info}\n----> moves:{moves}"
+        else:
+            info = "It's an empty field..."
+            return f"\n{info}"
 
     def is_chess_move(self, move) -> bool:
         if type(move) == tuple:

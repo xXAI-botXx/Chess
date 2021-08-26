@@ -134,9 +134,17 @@ def run():
         try:
             commands[user_input.split(" ")[0]](user_input)
         except KeyError as e:
-            #io.print_with_only_delay(e)
-            io.print_with_only_delay(f"Input not found! Type {io.PURPLE}help{io.END} for all keywords.", 0, 0)
-            io.confirm(f"(Press {io.RED}Enter{io.END} to continue)", fast=True)
+            try:
+                if engine.chessmen[user_input.upper()] in [engine.chessmen.KNIGHT, engine.chessmen.ROOK, engine.chessmen.BISHOP, engine.chessmen.QUEEN]:
+                    if cur_engine != None:
+                        result = cur_engine.pawn_promotion(user_input.upper())
+                        if len(result[1]) > 0:
+                            io.print_with_only_delay("\n"+result[1], 0, 0)
+                            io.confirm(f"\n(Press {io.RED}Enter{io.END} to continue.)", True, True)
+            except KeyError:
+                #io.print_with_only_delay(e)
+                io.print_with_only_delay(f"Input not found! Type {io.PURPLE}help{io.END} for all keywords.", 0, 0)
+                io.confirm(f"(Press {io.RED}Enter{io.END} to continue)", fast=True)
 
 
 if __name__ == '__main__':
