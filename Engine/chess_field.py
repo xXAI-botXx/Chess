@@ -75,10 +75,13 @@ class Field(object):
 
                 field[to_pos] = field[from_pos]
                 field[from_pos] = None
+
                 # post attack
+                field[to_pos].add_move(from_pos, to_pos)
                 if field[to_pos].chessman == chessmen.PAWN:
-                    
-                    field[to_pos].post_attack(to_pos)
+                    m = field[to_pos].post_attack(to_pos, field)
+                    if type(m) == str:
+                        messages += "\n"+m+"\n"
                 self.moves += [(from_pos, to_pos)]
                 return (True, messages)
             else:
@@ -103,7 +106,7 @@ class Field(object):
             copy_field[from_pos] = None
             # post attack
             if copy_field[to_pos].chessman == chessmen.PAWN:
-                copy_field[to_pos].post_attack(to_pos)
+                copy_field[to_pos].post_attack(to_pos, copy_field)
             self.moves += [(from_pos, to_pos)]
             return copy_field
         else:
@@ -187,6 +190,57 @@ class Field(object):
                                 # if not added in possible moves
                                 if new_pos not in valid_moves:
                                     valid_moves += [new_pos]
+            # check en_passant
+            if field[pos].chessman == chessmen.PAWN:
+                if field[pos].site == site.WHITE and pos[1] == "5":
+                # if one neighbor, which use his double jump
+                    if pos[0] == 'a':
+                        if self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]] != None and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]].chessman == chessmen.PAWN and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]].last_move_double_jump:
+                            new_pos = self.numerical_field_to_alphabetic(lines[pos[0]]+1)+str(int(pos[1])+1)
+                            valid_moves += [new_pos]
+                    elif pos[0] == 'h':
+                        if self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]] != None and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]].chessman == chessmen.PAWN and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]].last_move_double_jump:
+                            new_pos = self.numerical_field_to_alphabetic(lines[pos[0]]-1)+str(int(pos[1])+1)
+                            valid_moves += [new_pos]
+                    else:
+                        if self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]] != None and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]].chessman == chessmen.PAWN and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]].last_move_double_jump:
+                            new_pos = self.numerical_field_to_alphabetic(lines[pos[0]]+1)+str(int(pos[1])+1)
+                            valid_moves += [new_pos]
+                        if self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]] != None and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]].chessman == chessmen.PAWN and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]].last_move_double_jump:
+                            new_pos = self.numerical_field_to_alphabetic(lines[pos[0]]-1)+str(int(pos[1])+1)
+                            valid_moves += [new_pos]
+                elif field[pos].site == site.BLACK and pos[1] == "4":
+                    if pos[0] == 'a':
+                        if self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]] != None and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]].chessman == chessmen.PAWN and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]].last_move_double_jump:
+                            new_pos = self.numerical_field_to_alphabetic(lines[pos[0]]+1)+str(int(pos[1])-1)
+                            valid_moves += [new_pos]
+                    elif pos[0] == 'h':
+                        if self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]] != None and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]].chessman == chessmen.PAWN and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]].last_move_double_jump:
+                            new_pos = self.numerical_field_to_alphabetic(lines[pos[0]]-1)+str(int(pos[1])-1)
+                            valid_moves += [new_pos]
+                    else:
+                        if self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]] != None and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]].chessman == chessmen.PAWN and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]+1)+pos[1]].last_move_double_jump:
+                            new_pos = self.numerical_field_to_alphabetic(lines[pos[0]]+1)+str(int(pos[1])-1)
+                            valid_moves += [new_pos]
+                        if self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]] != None and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]].chessman == chessmen.PAWN and \
+                            self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]].last_move_double_jump:
+                            new_pos = self.numerical_field_to_alphabetic(lines[pos[0]]-1)+str(int(pos[1])-1)
+                            valid_moves += [new_pos]
 
             return valid_moves
 

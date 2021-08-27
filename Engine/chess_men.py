@@ -6,11 +6,12 @@ import Engine.chess_engine as engine
 
 
 class Chessman(abc.ABC):
-    def __init__(self, site:site, chessman:chessmen, name:str, kills=[]):
+    def __init__(self, site:site, chessman:chessmen, name:str, kills=[], moves=[]):
         self.site = site
         self.chessman = chessman
         self.name = name
         self.kills = kills
+        self.moves = moves
 
     @abc.abstractclassmethod
     def get_move_positions(self) -> list:
@@ -33,6 +34,9 @@ class Chessman(abc.ABC):
     def add_kill(self, enemie:str) -> str:
         self.kills += [enemie]
 
+    def add_move(self, from_pos, to_pos):
+        self.moves += [(from_pos, to_pos)]
+
     def info(self) -> str:
         txt = f"\n--> {self.name.title()}"
         txt += f"\n----> {self.site.name.title()}"
@@ -45,6 +49,7 @@ class Chessman(abc.ABC):
 class Pawn(Chessman):
     def __init__(self, site:site, double_move_activated=False, double_jump_possible=True, kills=[]):
         super().__init__(site, chessmen.PAWN, "pawn", kills)
+        self.last_move_double_jump = False
         self.double_jump_activated = double_move_activated    # by loading you have to check in moves
         self.double_jump_possible = double_jump_possible
         self.promotion = False
@@ -67,17 +72,23 @@ class Pawn(Chessman):
         elif self.site == site.BLACK:
             return [(1, -1, False), (-1, -1, False)]
 
-    def post_attack(self, pos):
+    def post_attack(self, pos, field):
+        self.last_move_double_jump = False
+
         # check dopple jump
         if self.double_jump_possible:
             self.double_jump_possible = False
             if self.site == site.WHITE:
                 if int(pos[1]) == 4:
+                    self.last_move_double_jump = True
                     self.double_jump_activated = True
+                    # check if en passant is possible -> check both neighbors
+                    # self.field.check(-1, 0) and self.field.check(1, 0)
                 else:
                     self.double_jump_activated = False
             else:
                 if int(pos[1]) == 5:
+                    self.last_move_double_jump = True
                     self.double_jump_activated = True
                 else:
                     self.double_jump_activated = False
@@ -88,6 +99,20 @@ class Pawn(Chessman):
         elif self.site == site.BLACK and int(pos[1]) == 1:
             self.promotion = True
             engine.event = "PROMOTION"
+
+         # check en'passant
+        if field[pos].site == site.WHITE and pos[1] == "6":
+            if field[pos[0]+'5'] != None and field[pos[0]+'5'].chessman == chessmen.PAWN:
+                if field[pos[0]+'5'].last_move_double_jump:
+                    self.kills += [field[pos[0]+'5'].name.title()]
+                    field[pos[0]+'5'] = None
+                    return "White Pawn destroys black Pawn by passing!"
+        elif field[pos].site == site.BLACK and pos[1] == "3":
+            if field[pos[0]+'4'] != None and field[pos[0]+'4'].chessman == chessmen.PAWN:
+                if field[pos[0]+'4'].last_move_double_jump:
+                    self.kills += [field[pos[0]+'4'].name.title()]
+                    field[pos[0]+'4'] = None
+                    return "Black Pawn destroys White Pawn by passing!"
 
 
 class Rook(Chessman):
