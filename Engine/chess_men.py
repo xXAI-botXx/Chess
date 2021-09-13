@@ -47,8 +47,8 @@ class Chessman(abc.ABC):
 
 
 class Pawn(Chessman):
-    def __init__(self, site:site, double_move_activated=False, double_jump_possible=True, kills=[]):
-        super().__init__(site, chessmen.PAWN, "pawn", kills)
+    def __init__(self, site:site, double_move_activated=False, double_jump_possible=True, kills=[], moves=[]):
+        super().__init__(site, chessmen.PAWN, "pawn", kills, moves)
         self.last_move_double_jump = False
         self.double_jump_activated = double_move_activated    # by loading you have to check in moves
         self.double_jump_possible = double_jump_possible
@@ -116,8 +116,8 @@ class Pawn(Chessman):
 
 
 class Rook(Chessman):
-    def __init__(self, site:site, kills=[]):
-        super().__init__(site, chessmen.ROOK, "rook", kills)
+    def __init__(self, site:site, kills=[], moves=[]):
+        super().__init__(site, chessmen.ROOK, "rook", kills, moves)
 
     def get_move_positions(self) -> list:
         return [(0, 1, True), (1, 0, True), (0, -1, True), (-1, 0, True)]
@@ -127,8 +127,8 @@ class Rook(Chessman):
 
     
 class Bishop(Chessman):
-    def __init__(self, site:site, kills=[]):
-        super().__init__(site, chessmen.BISHOP, "bishop", kills)
+    def __init__(self, site:site, kills=[], moves=[]):
+        super().__init__(site, chessmen.BISHOP, "bishop", kills, moves)
 
     def get_move_positions(self) -> list:
         return [(1, 1, True), (-1, 1, True), (1, -1, True), (-1, -1, True)]
@@ -138,8 +138,8 @@ class Bishop(Chessman):
 
 
 class Knight(Chessman):
-    def __init__(self, site:site, kills=[]):
-        super().__init__(site, chessmen.KNIGHT, "knight", kills)
+    def __init__(self, site:site, kills=[], moves=[]):
+        super().__init__(site, chessmen.KNIGHT, "knight", kills, moves)
 
     def get_move_positions(self) -> list:
         return [(1, 2, False), (-1, 2, False), (1, -2, False), (-1, -2, False), (2, 1, False), (-2, 1, False), (2, -1, False), (-2, -1, False)]
@@ -149,8 +149,8 @@ class Knight(Chessman):
 
         
 class Queen(Chessman):
-    def __init__(self, site:site, kills=[]):
-        super().__init__(site, chessmen.QUEEN, "queen", kills)
+    def __init__(self, site:site, kills=[], moves=[]):
+        super().__init__(site, chessmen.QUEEN, "queen", kills, moves)
 
     def get_move_positions(self) -> list:
         return [(1, 1, True), (-1, 1, True), (1, -1, True), (-1, -1, True), (0, 1, True), (1, 0, True), (0, -1, True), (-1, 0, True)]
@@ -160,12 +160,38 @@ class Queen(Chessman):
 
 
 class King(Chessman):
-    def __init__(self, site:site, kills=[]):
-        super().__init__(site, chessmen.KING, "king", kills)
+    def __init__(self, site:site, kills=[], moves=[]):
+        super().__init__(site, chessmen.KING, "king", kills, moves)
 
     def get_move_positions(self) -> list:
         return [(1, 1, False), (-1, 1, False), (1, -1, False), (-1, -1, False), (0, 1, False), (0, -1, False), (1, 0, False), (-1, 0, False)]
 
     def get_attack_positions(self) -> list:
         return [(1, 1, False), (-1, 1, False), (1, -1, False), (-1, -1, False), (0, 1, False), (0, -1, False), (1, 0, False), (-1, 0, False)]
+
+    def post_attack(self, pos, field):
+        # check rochade
+        if self.site == site.WHITE:
+            # rochade left execute?
+            if len(self.moves) == 1 and self.moves[0] == ('e1', 'c1'):
+                field['d1'] = field['a1']
+                field['a1'] = None
+                field['d1'].add_move('a1', 'd1')
+                return "White performs a grand Rochade!"
+            elif len(self.moves) == 1 and self.moves[0] == ('e1', 'g1'):    # rochade right execute?
+                field['f1'] = field['h1']
+                field['h1'] = None
+                field['f1'].add_move('h1', 'f1')
+                return "White performs a small Rochade!"
+        else:
+            if len(self.moves) == 8 and self.moves[0] == ('e8', 'c8'):
+                field['d8'] = field['a8']
+                field['a8'] = None
+                field['d8'].add_move('a8', 'd8')
+                return "Black performs a grand Rochade!"
+            elif len(self.moves) == 8 and self.moves[0] == ('e8', 'g8'):
+                field['f8'] = field['h8']
+                field['h8'] = None
+                field['f8'].add_move('h8', 'f8')
+                return "Black performs a small Rochade!"
 

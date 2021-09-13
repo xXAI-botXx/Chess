@@ -208,6 +208,9 @@ def confirm(message="", cleanup=False, fast=False):
     if cleanup:
         print_with_only_delay(f"{CLEAR_SCREEN(2)}{SET_POSITION(0,0)}", 0, 0)
 
+def press_enter_to_confirm():
+    confirm(f"\n(Press {RED}Enter{END} to continue.)", True, True)
+
 def all_unicodes():
     for i in range(0,1100):
         print(i, chr(i))

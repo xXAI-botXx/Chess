@@ -54,6 +54,7 @@ class Field(object):
         if to_pos in self.valid_moves(field, from_pos):
             # check if danger the king
             new_field = self.move_without_changes(field, from_pos, to_pos)
+            x_ = self.field['e1']
             if not self.is_check(new_field, field[from_pos].site):
                 if field[to_pos] != None:
                     field[from_pos].add_kill(field[to_pos].get_name())
@@ -79,6 +80,10 @@ class Field(object):
                 # post attack
                 field[to_pos].add_move(from_pos, to_pos)
                 if field[to_pos].chessman == chessmen.PAWN:
+                    m = field[to_pos].post_attack(to_pos, field)
+                    if type(m) == str:
+                        messages += "\n"+m+"\n"
+                elif field[to_pos].chessman == chessmen.KING:
                     m = field[to_pos].post_attack(to_pos, field)
                     if type(m) == str:
                         messages += "\n"+m+"\n"
@@ -241,6 +246,27 @@ class Field(object):
                             self.field[self.numerical_field_to_alphabetic(lines[pos[0]]-1)+pos[1]].last_move_double_jump:
                             new_pos = self.numerical_field_to_alphabetic(lines[pos[0]]-1)+str(int(pos[1])-1)
                             valid_moves += [new_pos]
+
+            # check rochade
+            if field[pos].chessman == chessmen.KING and len(field[pos].moves) == 0:
+                if field[pos].site == site.WHITE:
+                    # check rochade with left rook
+                    if field['a1'] != None and field['a1'].chessman == chessmen.ROOK and len(field['a1'].moves) == 0:
+                        if field['b1'] == None and field['c1'] == None and field['d1'] == None:
+                            valid_moves += ['c1']
+                    # check rochade with right rook
+                    if field['h1'] != None and field['h1'].chessman == chessmen.ROOK and len(field['h1'].moves) == 0:
+                        if field['f1'] == None and field['g1'] == None:
+                            valid_moves += ['g1']
+                elif field[pos].site == site.BLACK:
+                     # check rochade with left rook
+                    if field['a8'] != None and field['a8'].chessman == chessmen.ROOK and len(field['a8'].moves) == 0:
+                        if field['b8'] == None and field['c8'] == None and field['d8'] == None:
+                            valid_moves += ['c8']
+                    # check rochade with right rook
+                    if field['h8'] != None and field['h8'].chessman == chessmen.ROOK and len(field['h8'].moves) == 0:
+                        if field['f8'] == None and field['g8'] == None:
+                            valid_moves += ['g8']
 
             return valid_moves
 
