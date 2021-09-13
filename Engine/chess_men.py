@@ -184,12 +184,12 @@ class King(Chessman):
                 field['f1'].add_move('h1', 'f1')
                 return "White performs a small Rochade!"
         else:
-            if len(self.moves) == 8 and self.moves[0] == ('e8', 'c8'):
+            if len(self.moves) == 1 and self.moves[0] == ('e8', 'c8'):
                 field['d8'] = field['a8']
                 field['a8'] = None
                 field['d8'].add_move('a8', 'd8')
                 return "Black performs a grand Rochade!"
-            elif len(self.moves) == 8 and self.moves[0] == ('e8', 'g8'):
+            elif len(self.moves) == 1 and self.moves[0] == ('e8', 'g8'):
                 field['f8'] = field['h8']
                 field['h8'] = None
                 field['f8'].add_move('h8', 'f8')

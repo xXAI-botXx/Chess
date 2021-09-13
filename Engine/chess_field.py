@@ -101,7 +101,7 @@ class Field(object):
         copy_field = deepcopy(field)
         if to_pos in self.valid_moves(field, from_pos):
             if copy_field[to_pos] != None:
-                copy_field[from_pos].add_kill(copy_field[to_pos].get_name())
+                #copy_field[from_pos].add_kill(copy_field[to_pos].get_name())
                 if copy_field[to_pos].site == site.WHITE:
                     self.graveyard_white += [copy_field[to_pos]]
                 else:
@@ -112,7 +112,7 @@ class Field(object):
             # post attack
             if copy_field[to_pos].chessman == chessmen.PAWN:
                 copy_field[to_pos].post_attack(to_pos, copy_field)
-            self.moves += [(from_pos, to_pos)]
+            #self.moves += [(from_pos, to_pos)]
             return copy_field
         else:
             return None
@@ -195,6 +195,14 @@ class Field(object):
                                 # if not added in possible moves
                                 if new_pos not in valid_moves:
                                     valid_moves += [new_pos]
+            # check doople jump -> no chessman?
+            if field[pos].chessman == chessmen.PAWN:
+                if field[pos].site == site.WHITE and pos[1] == "2":
+                    if field[pos].double_jump_possible and field[pos[0]+"3"] != None:
+                        valid_moves.remove(pos[0]+"4")    # inplace change (mit seiteneffekt)
+                elif field[pos].site == site.BLACK and pos[1] == "7":
+                    if field[pos].double_jump_possible and field[pos[0]+"6"] != None:
+                        valid_moves.remove(pos[0]+"5")    # inplace change (mit seiteneffekt)
             # check en_passant
             if field[pos].chessman == chessmen.PAWN:
                 if field[pos].site == site.WHITE and pos[1] == "5":
@@ -316,6 +324,15 @@ class Field(object):
             pass
             # no king
 
+    def is_there_a_legal_turn(self, check_site):
+        for pos in positions:
+            if self.field[pos] != None and self.field[pos].site == check_site:
+                for to_pos in self.valid_moves(self.field, pos):
+                    copy_field = self.move_without_changes(self.field, pos, to_pos)
+                    if not self.is_check(copy_field, check_site):
+                        return True
+        return False
+
     def get_opposite_site(self, op_site):
         if op_site == site.WHITE:
             return site.BLACK
@@ -336,7 +353,7 @@ class Field(object):
         else:
             # replace pawn with ne chessman
             self.field[pawn_pos] = self.convert_chessmen_to_chessman(new_chessman, site, kills)
-            self.moves += [(pawn_pos, new_chessman)]
+            self.moves += [(pawn_pos, new_chessman.name.upper())]
             return (1, f"Pawn replaced with {new_chessman.name.title()}")
 
     def convert_chessmen_to_chessman(self, to_convert, site, kills) -> chess.Chessman:

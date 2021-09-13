@@ -48,21 +48,28 @@ class Engine(object):
                     turn_result = self.field.move(self.field.field, from_pos, to_pos)
                     result = turn_result[0]
                     messages += turn_result[1]
+                    # check if patt -> can the enemy do a legal turn and is not in check?
+                    if not self.field.is_check(self.field.field, self.field.get_opposite_site(self.turn)) \
+                        and not self.field.is_there_a_legal_turn(self.field.get_opposite_site(self.turn)):
+                        messages += f"\nIt's Patt!\n({self.field.get_opposite_site(self.turn).name.title()} can make any legal turn and is not in check)"
+                        self.gameover = True
                     # check safety of the enemy
-                    if self.field.is_check_mate(self.field.field, self.field.get_opposite_site(self.turn)):
+                    elif self.field.is_check_mate(self.field.field, self.field.get_opposite_site(self.turn)):
                         self.gameover = True
                         self.winner = self.turn
                         if self.winner == site.WHITE:
-                            messages += "\n\nBLACK is in checkmate!"
+                            messages += "\nBLACK is in checkmate!"
                             messages += "\nWHITE won this game!"
+                            self.gameover = True
                         else:
-                            messages += "\n\WHITE is in checkmate!"
+                            messages += "\nWHITE is in checkmate!"
                             messages += "\nBLACK won this game!"
+                            self.gameover = True
                     elif self.field.is_check(self.field.field, self.field.get_opposite_site(self.turn)):
                         if self.field.get_opposite_site(self.turn) == site.WHITE:
                             messages += "\nWHITE is in check!"
                         else:
-                            messages += "BLACK is in check!"
+                            messages += "\nBLACK is in check!"
                 else:
                     messages += "\nYou have to choose one of your Chessmen!"
             else:
@@ -102,13 +109,22 @@ class Engine(object):
             move = random.choice(all_moves)
         return move
 
-    def run_moves(self, moves:list) -> bool:
+    def run_many_moves(self, moves:list) -> bool:
         """Runs more than one turn on a Chess field. Returns if the execution worked right."""
-        # for every move in the list:
-        # move
-        #...
-        # change player for next turn
-        self.next_player()
+        global event
+        for move in moves:
+            if type(move) == str and move[0] != "#":
+                if event == None:
+                    from_pos, to_pos = move.split(" ")
+                    from_pos, to_pos = from_pos.replace(" ", ""), to_pos.replace(" ", "")
+                    result, message = self.run_move(from_pos, to_pos)
+                elif event == "PROMOTION":
+                    result, message = self.pawn_promotion(move.replace(" ", ""))
+
+                if result == False:
+                    self.field = Field(new_game=True)
+                    return (False, "Error by loading the Game!")
+        return (True, "Loaded the Game")
 
     def pawn_promotion(self, new_chessman:str) -> tuple:
         global event
@@ -154,6 +170,18 @@ class Engine(object):
 
     def get_active_player(self):
         return self.turn
+
+    def get_game_log(self) -> str:
+        save_txt = ""
+        for move in self.field.moves:
+            try:
+                if chessmen[move[1]] in [chessmen.KNIGHT, chessmen.QUEEN, chessmen.ROOK, chessmen.BISHOP]:
+                    save_txt += f"{move[1]}\n"
+                else:
+                    save_txt += f"{move[0]} {move[1]}\n"
+            except KeyError:
+                save_txt += f"{move[0]} {move[1]}\n"
+        return save_txt[:-1]    # without last \n
 
     def next_player(self):
         if self.turn == site.WHITE:
