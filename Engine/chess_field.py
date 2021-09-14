@@ -19,31 +19,31 @@ class Field(object):
         if self.mode == modes.CLASSIC:
             for pos in positions:
                 if pos[1] == '2':
-                    self.field[pos] = chess.Pawn(site.WHITE, False, True)
+                    self.field[pos] = chess.Pawn(site.WHITE, False, True, kills=[], moves=[])
                 elif pos[1] == '1':
                     if pos[0] == 'a' or pos[0] == 'h':
-                        self.field[pos] = chess.Rook(site.WHITE)
+                        self.field[pos] = chess.Rook(site.WHITE, kills=[], moves=[])
                     elif pos[0] == 'b' or pos[0] == 'g':
-                        self.field[pos] = chess.Knight(site.WHITE)
+                        self.field[pos] = chess.Knight(site.WHITE, kills=[], moves=[])
                     elif pos[0] == 'c' or pos[0] == 'f':
-                        self.field[pos] = chess.Bishop(site.WHITE)
+                        self.field[pos] = chess.Bishop(site.WHITE, kills=[], moves=[])
                     elif pos[0] == 'd':
-                        self.field[pos] = chess.Queen(site.WHITE)
+                        self.field[pos] = chess.Queen(site.WHITE, kills=[], moves=[])
                     elif pos[0] == 'e':
-                        self.field[pos] = chess.King(site.WHITE)
+                        self.field[pos] = chess.King(site.WHITE, kills=[], moves=[])
                 elif pos[1] == '7':
-                    self.field[pos] = chess.Pawn(site.BLACK, False, True)
+                    self.field[pos] = chess.Pawn(site.BLACK, False, True, kills=[], moves=[])
                 elif pos[1] == '8':
                     if pos[0] == 'a' or pos[0] == 'h':
-                        self.field[pos] = chess.Rook(site.BLACK)
+                        self.field[pos] = chess.Rook(site.BLACK, kills=[], moves=[])
                     elif pos[0] == 'b' or pos[0] == 'g':
-                        self.field[pos] = chess.Knight(site.BLACK)
+                        self.field[pos] = chess.Knight(site.BLACK, kills=[], moves=[])
                     elif pos[0] == 'c' or pos[0] == 'f':
-                        self.field[pos] = chess.Bishop(site.BLACK)
+                        self.field[pos] = chess.Bishop(site.BLACK, kills=[], moves=[])
                     elif pos[0] == 'd':
-                        self.field[pos] = chess.Queen(site.BLACK)
+                        self.field[pos] = chess.Queen(site.BLACK, kills=[], moves=[])
                     elif pos[0] == 'e':
-                        self.field[pos] = chess.King(site.BLACK)
+                        self.field[pos] = chess.King(site.BLACK, kills=[], moves=[])
                 else:
                     self.field[pos] = None
 
