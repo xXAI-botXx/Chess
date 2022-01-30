@@ -17,15 +17,15 @@ ___
 
 ___
 ### Implementationen:
-- Text-Basierte Konsolen Anwendung ( )
+- Text-Basierte Konsolen Anwendung (x)
 - GUI-Basierte Anwendung mit PyGame (oder Tkinter) ( )
 - Netzwerkspiel ( )
-- DiscordBot ( )
+- DiscordBot (x)
 
 ___
 ### Features:
-- Schach mit all seinen Regeln ( )
-- Speichere und lade ein Match ( )
+- Schach mit all seinen Regeln (x)
+- Speichere und lade ein Match (x)
 - Lernmodus? ( )
 - Verschiedene Modi (?) ( )
 - Zug zurück (will man das?) ( )
